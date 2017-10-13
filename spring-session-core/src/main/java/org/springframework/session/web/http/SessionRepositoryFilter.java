@@ -160,11 +160,19 @@ public class SessionRepositoryFilter<S extends Session>
 		HttpServletResponse strategyResponse = this.httpSessionStrategy
 				.wrapResponse(wrappedRequest, wrappedResponse);
 
+		String doNotSaveSessionHeader = request.getHeader("x-spring-session-dnu-session");
+		boolean commitSession = true;
+		if ("true".equals(doNotSaveSessionHeader)) {
+			commitSession = false;
+		}
+
 		try {
 			filterChain.doFilter(strategyRequest, strategyResponse);
 		}
 		finally {
-			wrappedRequest.commitSession();
+			if (commitSession) {
+				wrappedRequest.commitSession();
+			}
 		}
 	}
 
